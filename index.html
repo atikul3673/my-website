@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="bn">  
+<head>  
+<meta charset="utf-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">  
+<meta name="description" content="জনসুরক্ষা — নিরাপদ নাগরিক রিপোর্টিং প্ল্যাটফর্মের উন্নত Frontend Prototype">  
+<meta name="theme-color" content="#0d47a1">  
+<title>জনসুরক্ষা — নিরাপদ নাগরিক রিপোর্টিং ও স্থানভিত্তিক পরিসংখ্যান</title>  
+<!-- Chart.js CDN for Analytics -->  
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  
+<style>  
+:root{  
+  --primary:#0a5c36;--primary-light:#0e7c48;--accent:#f5a623;--red:#e63946;  
+  --bg:#f0f4f8;--card:#ffffff;--text:#1e293b;--muted:#64748b;  
+  --line:#e2e8f0;--shadow:0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.01);
+  --radius:16px  
+}  
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}  
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial,"Noto Sans Bengali","Segoe UI",sans-serif;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}  
+button,input,select,textarea{font:inherit}  
+header{position:sticky;top:0;z-index:100;background:rgba(10,92,54,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;padding:14px 5%;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.12)}  
+.brand{display:flex;align-items:center;gap:9px;font-size:24px;font-weight:900;white-space:nowrap}  
+.nav{display:flex;gap:6px;align-items:center}  
+.nav a{color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:14px;font-weight:700;transition:background 0.2s}  
+.nav a:hover{background:rgba(255,255,255,0.18)}  
+.menu{display:none;background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:7px 10px;cursor:pointer}  
+.hero{background:linear-gradient(135deg, #0a5c36 0%, #14452f 100%);color:#fff;padding:60px 5% 55px;transform:translateZ(0);}  
+.hero-inner{max-width:1150px;margin:auto}  
+.eyebrow{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:6px 14px;border-radius:30px;font-size:13px;font-weight:800;margin-bottom:14px}  
+.hero h1{font-size:clamp(28px,4.5vw,46px);line-height:1.25;max-width:800px;margin:0 0 16px;font-weight:900}  
+.hero p{max-width:780px;color:#e2e8f0;font-size:16px;line-height:1.8;margin:0 0 24px}  
+.btn{border:0;border-radius:12px;padding:12px 20px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:5px 6px 5px 0;transition:all 0.2s ease;will-change:transform;}  
+.btn:hover{transform:translateY(-2px)}  
+.btn:active{transform:translateY(0)}
+.white{background:#fff;color:var(--primary)}.gold{background:var(--accent);color:#1c1707}.red{background:var(--red);color:#fff}  
+.dark{background:var(--primary);color:#fff}.outline{background:transparent;color:var(--primary);border:2px solid var(--primary)}  
+.wrap{max-width:1150px;margin:auto;padding:36px 5%;contain:content;}  
+h2{font-size:26px;margin:0 0 16px;color:var(--primary);font-weight:800}  
+.section-intro{color:var(--muted);max-width:800px;margin-top:-6px;margin-bottom:20px}  
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}  
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transform:translateZ(0);word-break:break-word;}  
+.muted{color:var(--muted);font-size:14px;line-height:1.6}  
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}  
+.stat{text-align:center;background:#fff;border-top:4px solid var(--primary);}.stat b{display:block;color:var(--primary);font-size:32px;font-weight:900}.stat span{color:var(--muted);font-size:14px;font-weight:600}  
+.cat{cursor:pointer;transition:transform 0.2s, border-color 0.2s;}.cat:hover{border-color:var(--primary-light);transform:translateY(-3px)}  
+.cat.active{border:2px solid var(--primary);background:#f0fdf4}  
+.icon{font-size:28px;margin-bottom:8px;}.tag{display:inline-block;background:#e2f5ea;color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:800}  
+
+/* Analytics Section Styles */
+.analytics-section{background:#ffffff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow);}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:20px}
+.chart-box{background:#f8fafc;padding:16px;border-radius:14px;border:1px solid var(--line);position:relative;min-height:320px;overflow:hidden;}
+.chart-container-wrapper { position: relative; width: 100%; height: 260px; }
+.progress-list{margin-top:10px}
+.progress-item{margin-bottom:12px}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;font-weight:bold;margin-bottom:5px}
+.progress-bar-bg{background:#e2e8f0;height:10px;border-radius:10px;overflow:hidden}
+.progress-bar-fill{background:var(--primary);height:100%;border-radius:10px;width:0%;transition:width 0.6s ease}
+
+/* Table Styles */
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:#f1f5f9;color:var(--primary);font-weight:800}
+
+.form{max-width:860px;background:#fff;padding:28px;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow)}
+.notice{background:#f0fdf4;border-left:4px solid var(--primary);padding:14px;border-radius:8px;margin-bottom:18px}
+label{font-weight:700;display:block;margin:16px 0 6px;color:#334155}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color 0.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(10,92,54,0.15)}
+textarea{min-height:140px;resize:vertical}
+.check{font-weight:500;display:flex;gap:10px;align-items:flex-start}.check input{width:auto;margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.counter{text-align:right;color:var(--muted);font-size:12px;margin-top:4px}
+.success{background:#f0fdf4;border:2px solid var(--primary);padding:20px;border-radius:12px;margin-top:20px}
+.success-id{font-size:22px;font-weight:900;color:var(--red);word-break:break-all}
+.copy-btn{background:var(--accent);color:#1c1707;border:0;padding:6px 12px;border-radius:8px;font-weight:bold;cursor:pointer;margin-left:8px}
+.hidden{display:none!important}
+
+/* Contacts Styles */
+.contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.contact b{font-size:16px;color:var(--primary);display:block}.call{display:inline-block;background:var(--primary);color:#fff;text-decoration:none;padding:9px 16px;border-radius:10px;margin-top:10px;font-weight:800;font-size:14px;transition:background 0.2s}
+.call-red{background:var(--red)}
+.call-gold{background:var(--accent);color:#1c1707}
+
+.status-card{max-width:850px}.status-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.status-result{margin-top:15px;padding:15px;border-radius:10px;background:#f8fafc;border:1px solid var(--line)}
+.admin{background:#0f172a;color:#fff;border-radius:var(--radius);padding:25px 4%;margin:30px auto;}.admin h2{color:#fff}.admin .card{color:var(--text)}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px}
+.admin-num{font-size:32px;font-weight:900;color:var(--primary)}
+footer{background:#0a192f;color:#94a3b8;text-align:center;padding:30px 5%;line-height:1.8}
+.toast{position:fixed;right:20px;bottom:20px;z-index:2000;background:#0f172a;color:#fff;padding:14px 20px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3);max-width:350px}
+
+/* Sticky Action Container for Floating Buttons */
+.sticky-actions{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:999;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+.sticky-btn{
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
+  border-radius:50px;
+  padding:10px 18px;
+  font-size:14px;
+  margin:0;
+}
+.sticky-report{
+  background:var(--primary);
+  color:#fff;
+}
+.sticky-emergency{
+  background:var(--red);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(230,57,70,0.4);
+}
+
+/* Email support button */
+.mail-link{display:inline-flex;align-items:center;gap:8px;background:#0284c7;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;margin-top:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Mobile Optimization Fixes */
+@media(max-width:800px){
+  .nav{display:none}.menu{display:block}.nav.open{display:flex;position:absolute;top:60px;left:0;right:0;background:var(--primary);padding:15px 5%;flex-direction:column;align-items:stretch;box-shadow:0 10px 20px rgba(0,0,0,0.2)}
+  .nav.open a{padding:12px}
+  .chart-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .hero{padding:40px 5%}.form-row{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .admin-grid{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .contacts{grid-template-columns:1fr}
+  .brand{font-size:20px}.wrap{padding-top:20px;padding-bottom:20px}
+  .chart-box{padding:12px;}
+  .card{padding:16px;}
+}
+</style>
+</head>  
+
+<body>  
+<header>  
+  <div class="brand">🛡️ জনসুরক্ষা</div>  
+  <button class="menu" id="menuBtn" aria-label="মেনু">☰</button>  
+  <nav class="nav" id="nav">  
+    <a href="#analytics">পরিসংখ্যান</a>  
+    <a href="#report">রিপোর্ট</a>  
+    <a href="#verify">স্ট্যাটাস</a>  
+    <a href="#help">সহায়তা ও নম্বর</a>  
+    <a href="#admin">Admin</a>  
+  </nav>  
+</header>  
+
+<section class="hero">  
+  <div class="hero-inner">  
+    <span class="eyebrow">🔒 নিরাপদ নাগরিক রিপোর্টিং — Realtime Analytics</span>  
+    <h1>নির্ভয়ে জানান — আপনার তথ্য ও এলাকাভিত্তিক পরিসংখ্যান প্রদর্শিত হচ্ছে</h1>  
+    <p>হয়রানি, চাঁদাবাজি, ঘুষ, প্রতারণা বা যেকোনো অপরাধের বিরুদ্ধে নাগরিক সচেতনতা তৈরিতে কাজ করছে জনসুরক্ষা। রিয়েল-টাইম গ্রাফ ও তথ্যের মাধ্যমে সত্যতা পর্যবেক্ষণ করুন।</p>  
+    <a class="btn white" href="#report">📝 সহজে রিপোর্ট করুন</a>  
+    <a class="btn gold" href="#analytics">📊 পরিসংখ্যান পর্যবেক্ষণ করুন</a>  
+    <a class="btn red" href="tel:999">🚨 ৯৯৯-এ জরুরি কল</a>  
+  </div>  
+</section>  
+
+<section class="wrap">  
+  <div class="stats">  
+    <div class="card stat"><b id="total-count">0</b><span>মোট রিপোর্ট জমা</span></div>  
+    <div class="card stat"><b id="review-count">0</b><span>পর্যালোচনায়</span></div>  
+    <div class="card stat"><b id="solve-rate">0%</b><span>সমাধানের হার</span></div>  
+    <div class="card stat"><b id="avg-days">২.৪ দিন</b><span>গড় সমাধান সময়</span></div>  
+  </div>  
+</section>  
+
+<!-- ANALYTICS SECTION -->  
+<section class="wrap" id="analytics">  
+  <h2>📊 জাতীয় ও আঞ্চলিক পরিসংখ্যান ড্যাশবোর্ড</h2>  
+  <p class="section-intro">স্বচ্ছতা নিশ্চিতে দেশের বিভাগ, জেলা ও সমস্যার ক্যাটাগরিভিত্তিক সংগৃহীত তথ্যের হার এবং চার্ট নিচে দেওয়া হলো।</p>    
+
+  <div class="analytics-section">  
+    <div class="grid">  
+      <div class="card stat" style="border-top-color: var(--accent);"><b>২৪ ঘন্টায়</b><span id="daily-count">০ টি নতুন অভিযোগ</span></div>  
+      <div class="card stat" style="border-top-color: var(--primary);"><b>শীর্ষ সমস্যা</b><span id="top-issue">ঘুষ ও দুর্নীতি</span></div>  
+      <div class="card stat" style="border-top-color: var(--red);"><b>সর্বোচ্চ রিপোর্টকৃত এলাকা</b><span id="top-area">ঢাকা ও ময়মনসিংহ</span></div>  
+    </div>  
+
+    <div class="chart-grid">  
+      <div class="chart-box">  
+        <h3>📌 সমস্যার ক্যাটাগরিভিত্তিক শতকরা (%) হার</h3>  
+        <div class="chart-container-wrapper">
+          <canvas id="categoryChart"></canvas>  
+        </div>
+      </div>  
+      <div class="chart-box">  
+        <h3>📍 বিভাগভিত্তিক অভিযোগের অনুপাত</h3>  
+        <div class="chart-container-wrapper">
+          <canvas id="areaChart"></canvas>  
+        </div>
+      </div>  
+    </div>  
+
+    <!-- বিভাগ ও জেলার বিস্তারিত টেবিল -->
+    <div class="chart-box" style="margin-top:20px;">  
+      <h3>🏢 বিভাগ এবং জেলার বিস্তারিত রিপোর্ট উপস্থাপনা</h3>  
+      <div style="overflow-x:auto">  
+        <table>  
+          <thead>  
+            <tr>  
+              <th>বিভাগ</th>  
+              <th>প্রধান এলাকা/উপজেলা</th>  
+              <th>মোট রিপোর্ট</th>  
+              <th>শতাংশ (%)</th>  
+            </tr>  
+          </thead>  
+          <tbody id="divisionTableBody"></tbody>  
+        </table>  
+      </div>  
+    </div>
+
+    <div class="chart-box" style="margin-top:20px;">  
+      <h3>📈 বিগত ক্যাটাগরির বিস্তারিত প্রোগ্রেস</h3>  
+      <div class="progress-list" id="progressList"></div>  
+    </div>  
+  </div>  
+</section>  
+
+<section class="wrap">  
+  <h2>কেন এখানে রিপোর্ট করবেন?</h2>  
+  <div class="grid">  
+    <div class="card"><div class="icon">🔒</div><h3>পরিচয় সুরক্ষা</h3><p class="muted">Public রিপোর্টে রিপোর্টকারীর পরিচয় প্রকাশ না করার নীতির জন্য ডিজাইন করা হয়েছে।</p></div>  
+    <div class="card"><div class="icon">🛡️</div><h3>মডারেশন</h3><p class="muted">রিপোর্ট সরাসরি Public না করে নিরাপত্তা পরীক্ষা ও মানবিক পর্যালোচনার ধাপ রাখা হয়েছে।</p></div>  
+    <div class="card"><div class="icon">📌</div><h3>Tracking ID</h3><p class="muted">প্রতিটি রিপোর্টের জন্য আলাদা ID তৈরি হবে, যা Status Check-এ ব্যবহার করা যাবে।</p></div>  
+    <div class="card"><div class="icon">⚖️</div><h3>দায়িত্বশীল প্রকাশ</h3><p class="muted">ব্যক্তিগত তথ্য, মিথ্যা দাবি ও অপ্রয়োজনীয় অভিযুক্ত-পরিচয় Public করার কাঠামো রাখা হয়নি।</p></div>  
+  </div>  
+</section>  
+
+<section class="wrap" id="categories">  
+  <h2>আপনার সমস্যার ধরন বেছে নিন</h2>  
+  <p class="section-intro">একটি বিভাগে চাপ দিলে রিপোর্ট ফর্মে সেটি স্বয়ংক্রিয়ভাবে নির্বাচন হবে।</p>  
+  <div class="grid">  
+    <div class="card cat" data-cat="হয়রানি"><div class="icon">🚨</div><h3>হয়রানি</h3><p class="muted">ব্যক্তিগত, কর্মক্ষেত্র বা প্রাতিষ্ঠানিক হয়রানি</p></div>  
+    <div class="card cat" data-cat="চাঁদাবাজি"><div class="icon">💰</div><h3>চাঁদাবাজি</h3><p class="muted">চাঁদা দাবি, ভয় দেখানো বা চাপ প্রয়োগ</p></div>  
+    <div class="card cat" data-cat="ঘুষ"><div class="icon">💵</div><h3>ঘুষ</h3><p class="muted">ঘুষ চাওয়া বা অনিয়মের তথ্য</p></div>  
+    <div class="card cat" data-cat="সহিংসতা"><div class="icon">⚠️</div><h3>সহিংসতা</h3><p class="muted">হুমকি, হামলা বা নিরাপত্তা-সংক্রান্ত ঘটনা</p></div>  
+    <div class="card cat" data-cat="প্রতারণা"><div class="icon">🎭</div><h3>প্রতারণা</h3><p class="muted">প্রতারণা, জালিয়াতি ও আর্থিক অনিয়ম</p></div>  
+    <div class="card cat" data-cat="সাইবার অপরাধ"><div class="icon">💻</div><h3>সাইবার অপরাধ</h3><p class="muted">অনলাইন প্রতারণা, হুমকি বা হয়রানি</p></div>  
+    <div class="card cat" data-cat="সরকারি/প্রাতিষ্ঠানিক অনিয়ম"><div class="icon">🏢</div><h3>প্রাতিষ্ঠানিক অনিয়ম</h3><p class="muted">সরকারি/বেসরকারি প্রতিষ্ঠানের অনিয়ম</p></div>  
+    <div class="card cat" data-cat="জমি/সম্পত্তি"><div class="icon">🏠</div><h3>জমি ও সম্পত্তি</h3><p class="muted">জমি/সম্পত্তি নিয়ে সমস্যা বা বিরোধ</p></div>  
+  </div>  
+</section>  
+
+<!-- REPORT FORM SECTION -->
+<section class="wrap" id="report">  
+  <h2>📝 ২ মিনিটে রিপোর্ট করুন</h2>  
+  <div class="form">  
+    <div class="notice"><b>আপনি একা নন।</b> সমস্যাটি সংক্ষেপে ও নিরপেক্ষভাবে লিখুন। অপ্রয়োজনীয় নাম, NID, পাসওয়ার্ড, OTP বা অন্য সংবেদনশীল তথ্য দেবেন না।</div>  
+    <form id="mainReportForm" novalidate>  
+      <label for="cat">১. সমস্যার ধরন *</label>  
+      <select id="cat" required>  
+        <option value="">নির্বাচন করুন</option>  
+        <option>হয়রানি</option><option>চাঁদাবাজি</option><option>ঘুষ</option><option>সহিংসতা</option>  
+        <option>প্রতারণা</option><option>সাইবার অপরাধ</option><option>সরকারি/প্রাতিষ্ঠানিক অনিয়ম</option>  
+        <option>জমি/সম্পত্তি</option><option>অন্যান্য</option>  
+      </select>  
+
+      <div class="form-row">  
+        <div>  
+          <label for="division">২. বিভাগ নির্বাচন করুন *</label>  
+          <select id="division" required>  
+            <option value="">বিভাগ নির্বাচন করুন</option>  
+            <option>ঢাকা</option><option>চট্টগ্রাম</option><option>রাজশাহী</option>  
+            <option>খুলনা</option><option>বরিশাল</option><option>সিলেট</option>  
+            <option>রংপুর</option><option>ময়মনসিংহ</option>  
+          </select>  
+        </div>  
+        <div>  
+          <label for="area">৩. জেলা / উপজেলা / এলাকা *</label>  
+          <input id="area" placeholder="যেমন: ভালুকা, মিরপুর, পতেঙ্গা" required maxlength="160">  
+        </div>  
+      </div>  
+
+      <div class="form-row">  
+        <div>  
+          <label for="date">৪. কখন ঘটেছে?</label>  
+          <input id="date" type="date">  
+        </div>  
+        <div>
+          <label for="evidence">৫. প্রমাণ (ঐচ্ছিক)</label>  
+          <input id="evidence" type="file" accept="image/jpeg,image/png,image/webp,application/pdf,text/plain">  
+        </div>
+      </div>  
+
+      <label for="desc">৬. কী ঘটেছে? *</label>  
+      <textarea id="desc" maxlength="4000" required placeholder="ঘটনাটি নিরপেক্ষভাবে লিখুন..."></textarea>  
+      <div class="counter"><span id="descCount">0</span>/4000</div>  
+
+      <label class="check"><input type="checkbox" id="isPublic"> মডারেশন সাপেক্ষে Public করার অনুমতি দিচ্ছি</label>  
+      <label class="check"><input type="checkbox" id="truth" required> আমি ইচ্ছাকৃতভাবে মিথ্যা, হয়রানিমূলক বা মানহানিকর তথ্য জমা দিচ্ছি না। *</label>  
+
+      <button class="btn dark" type="submit">🔴 রিপোর্ট জমা দিন</button>  
+      <button class="btn outline" type="reset">ফর্ম পরিষ্কার করুন</button>  
+    </form>  
+
+    <div id="successBox" class="success hidden" role="status">  
+      <h3 style="margin:0 0 8px;color:#0a5c36">🎉 রিপোর্ট গ্রহণ করা হয়েছে</h3>  
+      <p style="margin:0 0 8px">আপনার রিপোর্ট সফলভাবে সংরক্ষণ করা হয়েছে। Tracking ID:</p>  
+      <div>Tracking ID: <span id="generatedId" class="success-id"></span><button class="copy-btn" id="copyBtn">📋 কপি</button></div>  
+    </div>  
+  </div>  
+</section>  
+
+<section class="wrap" id="verify">  
+  <h2>🔎 রিপোর্টের অবস্থা দেখুন</h2>  
+  <div class="card status-card">  
+    <div class="status-line">  
+      <input id="rid" style="flex:1;min-width:220px" maxlength="30" placeholder="যেমন: JS-2026-123456" autocomplete="off">  
+      <button class="btn dark" id="statusBtn">Status দেখুন</button>  
+    </div>  
+    <div id="st" class="status-result muted">রিপোর্ট ID ব্যবহার করে অবস্থা দেখুন।</div>  
+  </div>  
+</section>  
+
+<!-- HELPLINE SECTION -->
+<section class="wrap" id="help">  
+  <h2>📞 দেশের প্রয়োজনীয় কল নম্বর ও সরকারি বাতায়ন</h2>  
+  <p class="section-intro">যেকোনো জরুরি প্রয়োজনে নিচের অফিশিয়াল হেল্পলাইন নম্বরে সরাসরি যোগাযোগ করুন।</p>
+  
+  <div class="contacts">  
+    <div class="card contact" style="border:2px solid var(--red);background:#fff8f8">
+      <b>🚨 পুলিশের কাছে হেল্প (যে কোনো স্থান)</b>
+      <p class="muted">জরুরি পুলিশ, ফায়ার সেবা ও অ্যাম্বুলেন্স</p>
+      <a class="call call-red" href="tel:999">📞 999</a>
+    </div>  
+
+    <div class="card contact" style="border:2px solid var(--primary);background:#f0fdf4">
+      <b>🌐 জাতীয় তথ্য বাতায়ন (Official Website)</b>
+      <p class="muted">গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের অফিসিয়াল পোর্টাল</p>
+      <a class="call call-gold" href="https://bangladesh.gov.bd" target="_blank" rel="noopener">🌐 bangladesh.gov.bd</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🏛️ সরকারি তথ্য ও সেবা (জাতীয় বাতায়ন)</b>
+      <p class="muted">যেকোনো সরকারি তথ্য ও কল সেন্টার সেবা</p>
+      <a class="call" href="tel:333">📞 333</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🪪 ন্যাশনাল আইডি কার্ড সংশোধন / ভুল</b>
+      <p class="muted">নির্বাচন কমিশন NID সেবা</p>
+      <a class="call" href="tel:105">📞 105</a>
+    </div>  
+
+    <div class="card contact">
+      <b>⚖️ দুর্নীতি দমন কমিশন (দুদক)</b>
+      <p class="muted">ঘুষ, দুর্নীতি ও অনিয়মের অভিযোগ জানান</p>
+      <a class="call" href="tel:106">📞 106</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🏠 জায়গা জমি নিয়ে ঝামেলা</b>
+      <p class="muted">ভূমি সংক্রান্ত সরকারি সেবা কল সেন্টার</p>
+      <a class="call" href="tel:16122">📞 16122</a>
+    </div>  
+
+    <div class="card contact">
+      <b>⚡ বিদ্যুৎ বিল বেশি আসলে</b>
+      <p class="muted">বিদ্যুৎ সেবা সংক্রান্ত অভিযোগ</p>
+      <a class="call" href="tel:161001">📞 161001</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🏥 হাসপাতালে বিপক্ষে অভিযোগ</b>
+      <p class="muted">স্বাস্থ্য ও চিকিৎসা সেবা অভিযোগ</p>
+      <a class="call" href="tel:16263">📞 16263</a>
+    </div>  
+
+    <div class="card contact">
+      <b>✈️ বিমান অফিসের বিরুদ্ধে অভিযোগ</b>
+      <p class="muted">বিমান ও প্রবাসী কল্যাণ সেবা</p>
+      <a class="call" href="tel:13636">📞 13636</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🚆 ট্রেন টিকেট সিন্ডিকেট অভিযোগ</b>
+      <p class="muted">বাংলাদেশ রেলওয়ে অভিযোগ হটলাইন</p>
+      <a class="call" href="tel:131">📞 131</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🏦 ব্যাংকিং সেবা হয়রানি অভিযোগ</b>
+      <p class="muted">বাংলাদেশ ব্যাংক হেল্পলাইন</p>
+      <a class="call" href="tel:16236">📞 16236</a>
+    </div>  
+
+    <div class="card contact">
+      <b>🤝 আপনাদের ইউনিয়ন সেবা</b>
+      <p class="muted">স্থানীয় ইউনিয়ন পরিষদ নাগরিক সেবা</p>
+      <a class="call" href="tel:16256">📞 16256</a>
+    </div>  
+
+    <div class="card contact">
+      <b>📱 সিম কোম্পানির বিরুদ্ধে অভিযোগ</b>
+      <p class="muted">বিটিআরসি (BTRC) অভিযোগ হটলাইন</p>
+      <a class="call" href="tel:100">📞 100</a>
+    </div>  
+  </div>  
+</section>  
+
+<!-- ADMIN SECTION -->  
+<section class="wrap admin" id="admin">  
+  <h2>🔐 Admin Dashboard Overview</h2>  
+  <div class="admin-grid">  
+    <div class="card"><h3>নতুন রিপোর্ট</h3><div class="admin-num" id="adminNew">0</div></div>  
+    <div class="card"><h3>Review Queue</h3><div class="admin-num" id="adminReview">0</div></div>  
+    <div class="card"><h3>সমাধানকৃত</h3><div class="admin-num">০৮</div></div>  
+    <div class="card">
+      <h3>📩 Contact Support Team</h3>
+      <p class="muted" style="margin: 5px 0;">যেকোনো টেকনিক্যাল সাপোর্টের জন্য ইমেইল করুন</p>
+      <a href="mailto:atikul3673@gmail.com" class="mail-link">✉️ atikul3673@gmail.com</a>
+    </div>  
+  </div>  
+</section>  
+
+<!-- Sticky Action Buttons Container -->
+<div class="sticky-actions">
+  <a href="#report" class="btn sticky-btn sticky-report">📝 রিপোর্ট করুন</a>
+  <a href="tel:999" class="btn sticky-btn sticky-emergency">🚨 জরুরি সহায়তা: ৯৯৯</a>
+</div>
+
+<footer>  
+  <b>🛡️ জনসুরক্ষা</b> — নাগরিক ক্ষমতায়নে তথ্য ও পরিসংখ্যানভিত্তিক প্ল্যাটফর্ম<br>  
+  © 2026 জনসুরক্ষা · Frontend Prototype with Live Analytics  
+</footer>  
+
+<div id="toast" class="toast hidden"></div>  
+
+<script>  
+"use strict";  
+  
+const STORAGE_KEY = "jonsurokkha_reports_v3";  
+
+// Initial Structured Demo Data
+const mockData = {  
+  "JS-2026-101": { id: "JS-2026-101", category: "ঘুষ", division: "ময়মনসিংহ", area: "ভালুকা", status: "Under Review", createdAt: new Date().toISOString() },  
+  "JS-2026-102": { id: "JS-2026-102", category: "হয়রানি", division: "ঢাকা", area: "মিরপুর", status: "Resolved", createdAt: new Date().toISOString() },  
+  "JS-2026-103": { id: "JS-2026-103", category: "চাঁদাবাজি", division: "ময়মনসিংহ", area: "ত্রিশাল", status: "Under Review", createdAt: new Date().toISOString() },  
+  "JS-2026-104": { id: "JS-2026-104", category: "সাইবার অপরাধ", division: "চট্টগ্রাম", area: "পতেঙ্গা", status: "Resolved", createdAt: new Date().toISOString() },  
+  "JS-2026-105": { id: "JS-2026-105", category: "ঘুষ", division: "ঢাকা", area: "গাজীপুর", status: "Under Review", createdAt: new Date().toISOString() },  
+  "JS-2026-106": { id: "JS-2026-106", category: "প্রতারণা", division: "সিলেট", area: "সিলেট সদর", status: "Under Review", createdAt: new Date().toISOString() }  
+};  
+  
+function getReports(){  
+  try{  
+    const stored = localStorage.getItem(STORAGE_KEY);  
+    if(!stored){  
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData));  
+      return mockData;  
+    }  
+    const data = JSON.parse(stored);  
+    return data && typeof data === "object" ? data : {};  
+  }catch(e){ return mockData; }  
+}  
+  
+function saveReports(data){  
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));  
+}  
+  
+function escapeHTML(value){  
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({  
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"  
+  }[ch]));  
+}  
+  
+function showToast(message){  
+  const toast=document.getElementById("toast");  
+  toast.textContent=message;  
+  toast.classList.remove("hidden");  
+  clearTimeout(window.__toastTimer);  
+  window.__toastTimer=setTimeout(()=>toast.classList.add("hidden"),3000);  
+}  
+  
+function makeTrackingId(){  
+  const year=new Date().getFullYear();  
+  let id;  
+  const reports=getReports();  
+  do{  
+    id=`JS-${year}-${Math.floor(100000+Math.random()*900000)}`;  
+  }while(reports[id]);  
+  return id;  
+}  
+  
+// Chart Instances  
+let catChartInstance = null;  
+let areaChartInstance = null;  
+  
+function renderAnalytics(){  
+  const reports = getReports();  
+  const values = Object.values(reports);  
+  const total = values.length;  
+  
+  document.getElementById("total-count").textContent = total.toLocaleString("bn-BD");  
+    
+  const review = values.filter(r => r.status === "Under Review").length;  
+  document.getElementById("review-count").textContent = review.toLocaleString("bn-BD");  
+    
+  const resolved = values.filter(r => r.status === "Resolved").length;  
+  const rate = total > 0 ? Math.round((resolved / total) * 100) : 78;  
+  document.getElementById("solve-rate").textContent = rate + "%";  
+  
+  const catCounts = {};  
+  const divisionsList = ["ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা", "বরিশাল", "সিলেট", "রংপুর", "ময়মনসিংহ"];
+  const divMap = {};  
+  divisionsList.forEach(d => divMap[d] = { count: 0, areas: [] });
+
+  values.forEach(r => {  
+    catCounts[r.category] = (catCounts[r.category] || 0) + 1;  
+    
+    if(divMap[r.division]){
+      divMap[r.division].count += 1;
+      if(r.area && !divMap[r.division].areas.includes(r.area)){
+        divMap[r.division].areas.push(r.area);
+      }
+    }
+  });  
+  
+  // Category Doughnut Chart  
+  const catLabels = Object.keys(catCounts);  
+  const catData = Object.values(catCounts);  
+  const ctxCat = document.getElementById('categoryChart').getContext('2d');  
+
+  if(catChartInstance) catChartInstance.destroy();  
+  catChartInstance = new Chart(ctxCat, {  
+    type: 'doughnut',  
+    data: {  
+      labels: catLabels,  
+      datasets: [{  
+        data: catData,  
+        backgroundColor: ['#0a5c36', '#0e7c48', '#f5a623', '#e63946', '#2a9d8f', '#e76f51', '#457b9d']  
+      }]  
+    },  
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } } 
+    }  
+  });  
+  
+  // Division Bar Chart  
+  const ctxArea = document.getElementById('areaChart').getContext('2d');  
+  if(areaChartInstance) areaChartInstance.destroy();  
+  areaChartInstance = new Chart(ctxArea, {  
+    type: 'bar',  
+    data: {  
+      labels: divisionsList,  
+      datasets: [{  
+        label: 'অভিযোগের সংখ্যা',  
+        data: divisionsList.map(d => divMap[d].count),  
+        backgroundColor: '#0a5c36'  
+      }]  
+    },  
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true } } 
+    }  
+  });  
+  
+  // Division Table Render
+  const tableBody = document.getElementById("divisionTableBody");  
+  tableBody.innerHTML = "";  
+  divisionsList.forEach(div => {  
+    const count = divMap[div].count;  
+    const pct = total > 0 ? ((count/total)*100).toFixed(1) : 0;  
+    const areaList = divMap[div].areas.length > 0 ? divMap[div].areas.join(", ") : "কোনো তথ্য নেই";  
+      
+    tableBody.innerHTML += `  
+      <tr>  
+        <td><b>${div}</b></td>  
+        <td>${escapeHTML(areaList)}</td>  
+        <td>${count.toLocaleString("bn-BD")}</td>  
+        <td>${pct}%</td>  
+      </tr>  
+    `;  
+  });
+
+  // Progress Bars Render  
+  const progressList = document.getElementById("progressList");  
+  progressList.innerHTML = "";  
+  catLabels.forEach(cat => {  
+    const count = catCounts[cat];  
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;  
+      
+    const item = document.createElement("div");  
+    item.className = "progress-item";  
+    item.innerHTML = `  
+      <div class="progress-label">  
+        <span>${escapeHTML(cat)}</span>  
+        <span>${pct}% (${count} টি)</span>  
+      </div>  
+      <div class="progress-bar-bg">  
+        <div class="progress-bar-fill" style="width: ${pct}%"></div>  
+      </div>  
+    `;  
+    progressList.appendChild(item);  
+  });  
+}  
+  
+function updateDashboard(){  
+  const reports=getReports();  
+  const values=Object.values(reports);  
+  const review=values.filter(r=>r.status==="Under Review").length;  
+  document.getElementById("adminNew").textContent=values.filter(r=>r.status==="Received").length.toLocaleString("bn-BD");  
+  document.getElementById("adminReview").textContent=review.toLocaleString("bn-BD");  
+  renderAnalytics();  
+}  
+  
+function pickCategory(category, element){  
+  document.querySelectorAll(".cat").forEach(c=>c.classList.remove("active"));  
+  if(element) element.classList.add("active");  
+  document.getElementById("cat").value=category;  
+  document.getElementById("report").scrollIntoView({behavior:"smooth"});  
+}  
+  
+document.querySelectorAll(".cat").forEach(card=>{  
+  card.addEventListener("click",()=>pickCategory(card.dataset.cat,card));  
+});  
+  
+document.getElementById("desc").addEventListener("input",function(){  
+  document.getElementById("descCount").textContent=this.value.length;  
+});  
+  
+document.getElementById("mainReportForm").addEventListener("submit",function(e){  
+  e.preventDefault();  
+  
+  const cat=document.getElementById("cat").value.trim();  
+  const division=document.getElementById("division").value.trim();  
+  const area=document.getElementById("area").value.trim();  
+  const date=document.getElementById("date").value;  
+  const desc=document.getElementById("desc").value.trim();  
+  const truth=document.getElementById("truth").checked;  
+  const isPublic=document.getElementById("isPublic").checked;  
+  
+  if(!cat || !division || !area || !desc || !truth){  
+    showToast("অনুগ্রহ করে * চিহ্নিত তথ্যগুলো সঠিকবাবে পূরণ করুন।");  
+    return;  
+  }  
+  
+  const id=makeTrackingId();  
+  const reports=getReports();  
+  
+  reports[id]={  
+    id,  
+    category:cat,  
+    division:division,  
+    area:area,  
+    date:date || null,  
+    description:desc,  
+    publicRequested:isPublic,  
+    status:"Under Review",  
+    createdAt:new Date().toISOString()  
+  };  
+  
+  saveReports(reports);  
+  
+  document.getElementById("generatedId").textContent=id;  
+  document.getElementById("successBox").classList.remove("hidden");  
+  this.reset();  
+  updateDashboard();  
+  showToast("রিপোর্ট ও পরিসংখ্যান আপডেট করা হয়েছে।");  
+});  
+  
+document.getElementById("copyBtn").addEventListener("click",async()=>{  
+  const id=document.getElementById("generatedId").textContent;  
+  try{  
+    await navigator.clipboard.writeText(id);  
+    showToast("Tracking ID কপি হয়েছে।");  
+  }catch(e){  
+    showToast("কপি করা যায়নি।");  
+  }  
+});  
+  
+function showStatus(){  
+  const id=document.getElementById("rid").value.trim().toUpperCase();  
+  const box=document.getElementById("st");  
+  
+  if(!id){  
+    box.innerHTML='<span style="color:#e63946;font-weight:800">একটি রিপোর্ট ID লিখুন।</span>';  
+    return;  
+  }  
+  
+  const reports=getReports();  
+  const rep=reports[id];  
+  
+  if(!rep){  
+    box.innerHTML=`রিপোর্ট <b>${escapeHTML(id)}</b> পাওয়া যায়নি।`;  
+    return;  
+  }  
+  
+  box.innerHTML=`  
+    <div><b>রিপোর্ট ID:</b> ${escapeHTML(rep.id)}</div>  
+    <div><b>ধরন:</b> ${escapeHTML(rep.category)}</div>  
+    <div><b>স্থান:</b> ${escapeHTML(rep.division)}, ${escapeHTML(rep.area)}</div>  
+    <div><b>অবস্থা:</b> <span class="tag">${escapeHTML(rep.status)}</span></div>  
+  `;  
+}  
+  
+document.getElementById("statusBtn").addEventListener("click",showStatus);  
+  
+const menuBtn=document.getElementById("menuBtn");  
+const nav=document.getElementById("nav");  
+menuBtn.addEventListener("click",()=>nav.classList.toggle("open"));  
+  
+updateDashboard();  
+</script>  
+</body>  
+  </html>
